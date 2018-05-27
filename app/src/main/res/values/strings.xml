@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">ArduinoConnectionBluetooth</string>
+    <string name="bluetooth_status"><![CDATA[<Bluetooth Status>]]></string>
+    <string name="read_buffer"><![CDATA[<Read Buffer>]]></string>
+    <string name="liga_desliga">LIGA - DESLIGA</string>
+</resources>
