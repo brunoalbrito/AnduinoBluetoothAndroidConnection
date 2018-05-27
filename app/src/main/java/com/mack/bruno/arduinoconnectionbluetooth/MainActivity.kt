@@ -54,8 +54,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         checkboxLED1.setOnClickListener(View.OnClickListener {
-            while(true){
+            var i = 0;
+            while(i < 1000){
                 mBTSocket?.outputStream?.write("1".toByteArray())
+                i = i + 1
             }
         })
 
@@ -81,8 +83,22 @@ class MainActivity : AppCompatActivity() {
                 exibirMensagem(this,name, Toast.LENGTH_LONG)
 
                 var fail:Boolean = false
+                var adress:String? = null
+                for( i in mBTAdapter.bondedDevices){
+                    if(i.name == name){
+                        BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+                        exibirMensagem(this, "Caiu aqui", Toast.LENGTH_LONG)
+                        mBTAdapter = BluetoothAdapter.getDefaultAdapter()
+                        adress = i.address
+                        break
+                    }
+                }
                 try {
-                    mBTSocket = (mBTAdapter.getRemoteDevice(address)).createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+                    var dispositivo = mBTAdapter.getRemoteDevice(address)
+                    mBTSocket = dispositivo.createInsecureRfcommSocketToServiceRecord(UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66"))
+                    exibirMensagem(this,"Caiu aqui", Toast.LENGTH_LONG)
+                    //mBTSocket = (mBTAdapter.getRemoteDevice(address)).createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+                    //mBTSocket = (mBTAdapter.getRemoteDevice(address)).createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
                 }catch (e: IOException ){
                     fail = true
                     Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
@@ -94,7 +110,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show()
                 }
                 if(fail == false){
-
+                    exibirMensagem(this, "Conexao criada com sucesso", Toast.LENGTH_LONG)
                 }
             }
         }
@@ -139,6 +155,21 @@ class MainActivity : AppCompatActivity() {
                 }else{
                     exibirMensagem(this, "Bluetooth esta desligado", Toast.LENGTH_SHORT)
                 }
+            }
+        })
+
+        PairedBtn.setOnClickListener(View.OnClickListener {
+            var mPairedDevices = mBTAdapter.getBondedDevices();
+            if(mBTAdapter.isEnabled){
+                mBTArrayAdapter?.clear()
+                for(device in mPairedDevices){
+                    mBTArrayAdapter?.add(device.name + "\n" + device.address);
+                    mBTArrayAdapter?.notifyDataSetChanged()
+                }
+
+                Toast.makeText(getApplicationContext(), "Show Paired Devices", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(getApplicationContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
             }
         })
     }
